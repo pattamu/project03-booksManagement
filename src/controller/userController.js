@@ -82,7 +82,7 @@ const registerUser = async function (req, res) {
         if (badRequest()) {
             let err = badRequest();
             return res.status(400).send({ status: false, msg: err })
-        }
+        } 
 
         let created = await userModel.create(data)
         res.status(201).send({ status: true, message: "Success", data: created })
