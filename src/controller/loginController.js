@@ -29,7 +29,6 @@ const userLogin = async (req,res) => {
                     message: "invalid credentials. User doesn't exist."
                 })
             let token = generateToken(userCheck)
-            res.setHeader('user-auth-key', token)
             res.status(201).send({
                 status: true,
                 data: {

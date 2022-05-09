@@ -7,7 +7,7 @@ const userAuthorization = async (req,res,next) => {
         if(!verifyToken)
             return res.status(401).send({
                 status: false,
-                message: "Token is either Invalid or Expired."
+                message: "Token is either Invalid or Expired. User Must log in with Valid details."
             })
         req.headers['valid-auth-user_id'] = verifyToken.userId
         next()
