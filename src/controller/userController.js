@@ -81,7 +81,9 @@ const registerUser = async function (req, res) {
         }
         if (badRequest()) {
             let err = badRequest();
-            return res.status(400).send({ status: false, msg: err })
+            if(typeof err == "string")
+                return res.status(400).send({ status: false, msg: err })
+            return res.status(400).send({ status: false, msg: err.join(', ') })
         }
 
         let created = await userModel.create(data)
