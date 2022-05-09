@@ -1,6 +1,6 @@
 const {decodeToken} = require('../controller/loginController')
 
-const userAuthorization = async (req,res,next) => {
+const userAuthentication = async (req,res,next) => {
     try{
         let token = req.headers['user-auth-key']
         let verifyToken = decodeToken(token)
@@ -20,4 +20,4 @@ const userAuthorization = async (req,res,next) => {
     }
 }
 
-module.exports = userAuthorization
+module.exports = userAuthentication
