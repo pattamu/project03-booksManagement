@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect("mongodb+srv://nas:nas1234@cluster0.fci9p.mongodb.net/group28Database", {
+mongoose.connect("mongodb+srv://nas:nas1234@cluster0.fci9p.mongodb.net/group25Database", {
     useNewUrlParser: true
 })
 
