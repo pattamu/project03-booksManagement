@@ -1,4 +1,4 @@
-const userModel = require("../models/usermodel")
+const userModel = require("../models/userModel")
 
 // const isValidParams = function(arr){
 //     let params = ["name", "title", "phone", "email", "password"]
@@ -34,30 +34,30 @@ const registerUser = async function (req, res) {
                 error.push("title is required")
             //check for enum values
             let arr = ["Mr", "Mrs", "Miss"]
-            if (data.title && !arr.includes(data.title.trim()))
+            if (data.title?.trim() && !arr.includes(data.title.trim()))
                 error.push("title can only be Mr,Mrs or Miss")
 
             //checks if name is present
             if (isPresent(data.name))
                 error.push("name is required")
             //checks for valid name
-            if (data.name && !data.name.trim().match(/^[A-z]*$|^[A-z]+\s[A-z]*$/))
+            if (data.name?.trim() && !data.name.trim().match(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/))
                 error.push("enter valid name")
 
             //checks if phone is present or not
             if (isPresent(data.phone))
                 error.push("phone is required")
             //checks for valid phone number
-            function isValid(x, y) {
-                if (isNaN(y))
-                    return true;
-                else if ((x[0] == 9 || x[0] == 8 || x[0] == 7 || x[0] == 6) && x.length == 10)
-                    return false;
-                else return true;
-            }
-            let y = parseInt(data.phone)
-            let x = y.toString()
-            if (data.phone.trim() && isValid(x, y))
+            // function isValid(x, y) {
+            //     if (isNaN(y))
+            //         return true;
+            //     else if ((x[0] == 9 || x[0] == 8 || x[0] == 7 || x[0] == 6) && x.length == 10)
+            //         return false;
+            //     else return true;
+            // }
+            // let y = parseInt(data.phone)
+            // let x = y.toString()
+            if (data.phone?.trim() && !data.phone.trim().match(/^(\+\d{1,3}[- ]?)?\d{10}$/))
                 error.push("Enter valid mobile number")
             //check unique phone number
             if (getPhone)
@@ -67,7 +67,7 @@ const registerUser = async function (req, res) {
             if (isPresent(data.email))
                 error.push("email is required")
             //validate email
-            if (data.email && !data.email.trim().match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/))
+            if (data.email?.trim() && !data.email.trim().match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/))
                 error.push("email is invalid")
             //check for duplicate email
             if (getEmail)
@@ -89,7 +89,7 @@ const registerUser = async function (req, res) {
         }
         if (badRequest()) {
             let err = badRequest();
-            return res.status(400).send({ status: false, msg: err })
+            return res.status(400).send({ status: false, msg: err.join(", ") })
         }
 
         let created = await userModel.create(data)
