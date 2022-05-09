@@ -48,16 +48,18 @@ const registerUser = async function (req, res) {
             if (isPresent(data.phone))
                 error.push("phone is required")
             //checks for valid phone number
-            function isValid(x, y) {
+            function isValid(x, y, z) {
                 if (isNaN(y))
                     return true;
-                else if ((x[0] == 9 || x[0] == 8 || x[0] == 7 || x[0] == 6) && x.length == 10)
+                else if ((z[0] == 9 || z[0] == 8 || z[0] == 7 || z[0] == 6) && z.length == 10 && x.length == 10)
                     return false;
                 else return true;
             }
-            let y = parseInt(data.phone)
-            let x = y.toString()
-            if (data.phone.trim() && isValid(x, y))
+            let x = data.phone.trim()
+            let y = parseInt(x)
+            let z = y.toString()
+
+            if (data.phone.trim() && isValid(x, y, z))
                 error.push("Enter valid mobile number")
             //check unique phone number
             if (getPhone)
