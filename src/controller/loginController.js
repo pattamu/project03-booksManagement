@@ -21,10 +21,10 @@ const decodeToken = (token) => {
 const userLogin = async (req,res) => {
     let data = req.body
     try{
-        if(Object.keys(data).length ===2 && data.email && data.password){
+        if(Object.keys(data).length === 2 && data.email && data.password){
             let userCheck = await userModel.findOne(data)
             if(!userCheck)
-                return res.status(401).status({
+                return res.status(401).send({
                     status: false,
                     message: "invalid credentials. User doesn't exist."
                 })
