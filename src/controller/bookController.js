@@ -21,7 +21,7 @@ const getBooks = async function (req, res) {
             let category = req.query.category
             let subcategory = req.query.subcategory
 
-            let allBooks = await bookController.find({ $or: [{ userid: userId }, { category: category }, { subcategory: subcategory }] })
+            let allBooks = await bookController.find({$and : [{ $or: [{ userid: userId }, { category: category }, { subcategory: subcategory }] }, {isDeleted : false}]})
 
             if (allBooks.length == 0) return res.status(400).send({ status: false, message: "No books with selected query params" })
 
