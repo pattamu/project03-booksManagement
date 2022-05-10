@@ -109,7 +109,8 @@ const getBooks = async function (req, res) {
 
             let allBooks = await bookModel.find({ $and: [{ $or: [{ userid: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] })
                                         .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
-            if (allBooks.length == 0) return res.status(400).send({ status: false, message: "No books with selected query params" })
+            if (allBooks.length == 0) 
+            return res.status(400).send({ status: false, message: "No books with selected query params" })
 
             let sortedBooks = allBooks.sort((a, b) => {
                 let first = a.title.toUpperCase()
@@ -118,7 +119,6 @@ const getBooks = async function (req, res) {
                 if (first > second) return 1
                 return 0
             })
-
             res.status(200).send({ status: true, message: "Success", data: sortedBooks })
         }
     }
