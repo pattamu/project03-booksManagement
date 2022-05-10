@@ -6,27 +6,27 @@ const exp = process.env.JWT_EXP || '3600s'
 const generateToken = (userData) => {
     return jwt.sign({
         userId: userData._id.toString(),
-    },secret, {expiresIn: exp})
+    }, secret, { expiresIn: exp })
 }
 
 const decodeToken = (token) => {
-    return jwt.verify(token,secret,(err,data) => {
-        if(err)
+    return jwt.verify(token, secret, (err, data) => {
+        if (err)
             return null
-        else 
+        else
             return data
-        })
+    })
 }
 
-const userLogin = async (req,res) => {
+const userLogin = async (req, res) => {
     let data = req.body
-    try{
-        if(Object.keys(data).length === 2 && data.email && data.password){
+    try {
+        if (Object.keys(data).length === 2 && data.email && data.password) {
             let userCheck = await userModel.findOne(data)
-            if(!userCheck)
+            if (!userCheck)
                 return res.status(401).send({
                     status: false,
-                    message: "invalid credentials. User doesn't exist."
+                    message: "Invalid credentials. User doesn't exist."
                 })
             let token = generateToken(userCheck)
             res.status(201).send({
@@ -44,7 +44,7 @@ const userLogin = async (req,res) => {
                 status: false,
                 messgae: "Please enter Valid E-mail and Password Only."
             })
-    }catch(err){
+    } catch (err) {
         console.log(err.message)
         res.status(500).send({
             status: false,
@@ -53,4 +53,4 @@ const userLogin = async (req,res) => {
     }
 }
 
-module.exports = {userLogin, decodeToken}
+module.exports = { userLogin, decodeToken }

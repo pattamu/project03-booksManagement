@@ -1,15 +1,5 @@
 const userModel = require("../models/userModel")
 
-// const isValidParams = function(arr){
-//     let params = ["name", "title", "phone", "email", "password"]
-//     for(let keys of arr){
-//         if(params.indexOf(keys) == -1) return false
-//     }
-//     if(arr.length == 6){
-//         if(arr.indexOf("address") == -1) return false
-//     }
-//     return true
-// }
 
 const registerUser = async function (req, res) {
     try {
@@ -17,8 +7,6 @@ const registerUser = async function (req, res) {
         let getPhone = await userModel.findOne({ phone: data.phone })
         let getEmail = await userModel.findOne({ email: data.email })
 
-        // if(!isValidParams(Object.keys(req.body))) 
-        // return res.status(400).send({status : false, message : "Invalid Params, there might be something that should not be there"})
 
         function isPresent(value) {
             if (!value || value.trim().length == 0)
@@ -79,11 +67,11 @@ const registerUser = async function (req, res) {
 
             if (error.length > 0)
                 return error;
-                
+
         }
         if (badRequest()) {
-            let err = badRequest(); 
-            if(typeof err == "string")
+            let err = badRequest();
+            if (typeof err == "string")
                 return res.status(400).send({ status: false, msg: err })
             return res.status(400).send({ status: false, msg: err.join(', ') })
         }
@@ -95,4 +83,4 @@ const registerUser = async function (req, res) {
     }
 }
 
-module.exports = {registerUser}
+module.exports = { registerUser }
