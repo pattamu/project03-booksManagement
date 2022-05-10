@@ -23,7 +23,7 @@ const getBooks = async function(req, res){
 
             let allBooks = await bookController.find({$or : [{userid : userId},{category : category}, {subcategory : subcategory}]})
 
-            if(!allBooks) return res.status(400).send({status : false, message : "No books with selected query params"})
+            if(allBooks.length == 0) return res.status(400).send({status : false, message : "No books with selected query params"})
 
             let sortedBooks = allBooks.sort((a, b) => {
                 let first = a.title.toUpperCase()
