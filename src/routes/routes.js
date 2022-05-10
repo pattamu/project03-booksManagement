@@ -3,9 +3,11 @@ const router = express.Router();
 const {registerUser} = require("../controller/userController")
 const {userLogin} = require("../controller/loginController")
 const {userAuthentication} = require("../middleware/authentication")
+const{createBook}=require("../controller/bookController")
 
 router.post("/register", registerUser )
 router.post("/login", userLogin)
+router.post("/books", createBook)
 
 
 module.exports = router

@@ -26,6 +26,8 @@ const registerUser = async function (req, res) {
         }
         function badRequest() {
             let error = []
+
+            //checks if body is empty
             if (Object.keys(data).length == 0)
                 return "Oops, you forgot to fill data inside request body"
 
@@ -49,7 +51,7 @@ const registerUser = async function (req, res) {
                 error.push("phone is required")
             //checks for valid phone number
             if (data.phone?.trim() && !data.phone.trim().match(/^(\+\d{1,3}[- ]?)?\d{10}$/))
-                error.push("Enter valid mobile number")
+                error.push("enter valid mobile number")
             //check unique phone number
             if (getPhone)
                 error.push("mobile number is already in use")
@@ -59,7 +61,7 @@ const registerUser = async function (req, res) {
                 error.push("email is required")
             //validate email
             if (data.email?.trim() && !data.email.trim().match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/))
-                error.push("email is invalid")
+                error.push("enter valid email")
             //check for duplicate email
             if (getEmail)
                 error.push("email is already in use")
@@ -72,15 +74,15 @@ const registerUser = async function (req, res) {
                 error.push("password must have 8-15 characters")
 
             //check if address have valid pincode
-            if (data.address.pincode && !data.address.pincode.trim().match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/))
-                error.push("pincode is invalid")
+            if (data.address?.pincode && !data.address.pincode.match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/))
+                error.push("enter valid pincode")
 
             if (error.length > 0)
                 return error;
                 
         }
         if (badRequest()) {
-            let err = badRequest();
+            let err = badRequest(); 
             if(typeof err == "string")
                 return res.status(400).send({ status: false, msg: err })
             return res.status(400).send({ status: false, msg: err.join(', ') })

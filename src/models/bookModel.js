@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
-
 const ObjectId = mongoose.Schema.Types.ObjectId
 
 const bookSchema = new mongoose.Schema({
-
   title: {
     type: String,
     required: true,
@@ -31,11 +29,11 @@ const bookSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  subcategory: {
+  subcategory: [{    
     type: String,
     required: true,
     trim: true
-  },
+}],
   reviews: {
     type: Number,
     default: 0,
