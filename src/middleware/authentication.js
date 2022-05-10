@@ -20,4 +20,4 @@ const userAuthentication = async (req,res,next) => {
     }
 }
 
-module.exports = userAuthentication
+module.exports = {userAuthentication}

@@ -93,4 +93,4 @@ const registerUser = async function (req, res) {
     }
 }
 
-module.exports.registerUser = registerUser
+module.exports = {registerUser}
