@@ -1,15 +1,5 @@
 const userModel = require("../models/userModel")
 
-// const isValidParams = function(arr){
-//     let params = ["name", "title", "phone", "email", "password"]
-//     for(let keys of arr){
-//         if(params.indexOf(keys) == -1) return false
-//     }
-//     if(arr.length == 6){
-//         if(arr.indexOf("address") == -1) return false
-//     }
-//     return true
-// }
 
 const registerUser = async function (req, res) {
     try {
@@ -17,9 +7,7 @@ const registerUser = async function (req, res) {
         let getPhone = await userModel.findOne({ phone: data.phone })
         let getEmail = await userModel.findOne({ email: data.email })
 
-        // if(!isValidParams(Object.keys(req.body))) 
-        // return res.status(400).send({status : false, message : "Invalid Params, there might be something that should not be there"})
-
+        
         function isPresent(value) {
             if (!value || value.trim().length == 0)
                 return true;
@@ -72,8 +60,8 @@ const registerUser = async function (req, res) {
                 error.push("password must have 8-15 characters")
 
             //check if address have valid pincode
-            if (data.address.pincode && !data.address.pincode.trim().match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/))
-                error.push("pincode is invalid")
+            // if (data.address.pincode && !data.address.pincode.trim().match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/))
+            //     error.push("pincode is invalid")
 
             if (error.length > 0)
                 return error;
