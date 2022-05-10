@@ -112,7 +112,7 @@ const getBooks = async function (req, res) {
             let category = req.query.category
             let subcategory = req.query.subcategory
 
-            let allBooks = await bookModel.find({ $and: [{ $or: [{ userid: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] })
+            let allBooks = await bookModel.find({ $and: [{ $or: [{ userId: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] })
                                         .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
             if (allBooks.length == 0) 
             return res.status(400).send({ status: false, message: "No books with selected query params" })
@@ -125,7 +125,7 @@ const getBooks = async function (req, res) {
                 return 0
             })
             res.status(200).send({ status: true, message: "Success", data: sortedBooks })
-        }
+         }
     }
     catch (error) {
         res.status(500).send({ status: false, message: error.message })
