@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 //        Delete Api
 
@@ -26,7 +26,7 @@ const deleteBooksBYId = async function (req, res) {
   }
 
   module.exports.deleteBooksBYId = deleteBooksBYId
-=======
+
 const bookController = require("../models/bookModel")
 
 
@@ -70,10 +70,5 @@ const getBooks = async function (req, res) {
     }
 }
 
-
-<<<<<<< HEAD
 module.exports = {getBooks}
->>>>>>> 5b4e804a08419cc3e14d2ae9622dccbb21598ffd
-=======
 module.exports = { getBooks }
->>>>>>> 5becdec48eb8ca817faa9ac591031402a1fd6c4e
