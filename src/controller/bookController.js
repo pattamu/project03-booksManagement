@@ -1,4 +1,5 @@
 
+const bookController = require("../models/bookModel")
 
 //        Delete Api
 
@@ -27,7 +28,6 @@ const deleteBooksBYId = async function (req, res) {
 
   module.exports.deleteBooksBYId = deleteBooksBYId
 
-const bookController = require("../models/bookModel")
 
 
 //Return only book _id, title, excerpt, userId, category, releasedAt, reviews field
