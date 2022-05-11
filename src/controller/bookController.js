@@ -14,7 +14,7 @@ const createBook = async function (req, res) {
 
     function isPresent(value) {
       if (!value || value.trim().length == 0)
-        return true;
+        return false;
     }
     function badRequest() {
       let error = []
@@ -24,25 +24,25 @@ const createBook = async function (req, res) {
         return "Oops, you forgot to fill data inside request body"
 
       //check if title is present
-      if (isPresent(data.title))
+      if (!isPresent(data.title))
         error.push("title is required")
       //checks for duplicate title
       if (findTitle)
         error.push("book with same title is already present")
 
       //check if excerpt is present
-      if (isPresent(data.excerpt))
+      if (!isPresent(data.excerpt))
         error.push("excerpt is required")
 
       //check if userId is present
-      if (isPresent(data.userId))
+      if (!isPresent(data.userId))
         error.push("userId is required")
       //checks for valid userId
       if (!ObjectId.isValid(data.userId))
         error.push("enter valid userId")
 
       //check if ISBN is present
-      if (isPresent(data.ISBN))
+      if (!isPresent(data.ISBN))
         error.push("ISBN is required")
       //checks for valid ISBN
       if (data.ISBN && !data.ISBN.trim().match(isbnRegex))
@@ -52,7 +52,7 @@ const createBook = async function (req, res) {
         error.push("book with same ISBN is already present")
 
       //check if category is present
-      if (isPresent(data.category))
+      if (!isPresent(data.category))
         error.push("category is required")
 
       //check if subcategory is present
@@ -60,7 +60,7 @@ const createBook = async function (req, res) {
         error.push("subcategory is required or invalid")
 
       //check if releasedAt is present
-      if (isPresent(data.releasedAt))
+      if (!isPresent(data.releasedAt))
         error.push("releasedAt is required")
       //check for releasedAt format
       if (data.releasedAt && !data.releasedAt.trim().match(/^\d{4}[-]\d{2}[-]\d{2}$/))
@@ -123,6 +123,29 @@ const getBooks = async function (req, res) {
   }
 }
 
+
+//get book with params
+const getBooksReviews = async function(req, res){
+  try{
+    let bookId = req.params.bookId
+    if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
+
+    let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({__v : 0})
+    if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
+
+    let reviews = await reviewModel.find({bookId : bookId}).select({isDeleted : 0, createdAt : 0, updatedAt : 0, __v : 0})
+
+    findBook = findBook.toJSON()
+    findBook["reviewsData"] = reviews
+
+    res.status(200).send({status : true, message : "Books List", data : findBook})
+
+
+  }
+  catch(error){
+    res.status(500).send({status : false, message : error.message})
+  }
+}
 
 //Update Book API Function
 const updateBook = async (req, res) => {
@@ -209,27 +232,6 @@ const deleteBooksBYId = async function (req, res) {
     res.status(500).send({ status: false, error: error.message });
   }
 }
-
-const getBooksReviews = async function(req, res){
-  try{
-    let bookId = req.params.bookId
-    if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
-
-    let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
-    if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
-
-    let reviews = await reviewModel.find({bookId : bookId}).select({isDeleted : 0})
-
-    findBook = findBook.toJson()
-    findBook["reviewsData"] = [...reviews]
-
-    res.status(200).send({status : true, message : "Books List", data : findBook})
-
-
-  }
-  catch(error){
-    res.status(500).send({status : false, message : error.message})
-  }
-}
+ 
 
 module.exports = {getBooksReviews ,createBook, deleteBooksBYId, getBooks, updateBook }

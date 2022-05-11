@@ -10,7 +10,7 @@ const registerUser = async function (req, res) {
 
         function isPresent(value) {
             if (!value || value.trim().length == 0)
-                return true;
+                return false;
         }
         function badRequest() {
             let error = []
@@ -20,7 +20,7 @@ const registerUser = async function (req, res) {
                 return "Oops, you forgot to fill data inside request body"
 
             //check if title is present
-            if (isPresent(data.title))
+            if (!isPresent(data.title))
                 error.push("title is required")
             //check for enum values
             let arr = ["Mr", "Mrs", "Miss"]
@@ -28,14 +28,14 @@ const registerUser = async function (req, res) {
                 error.push("title can only be Mr,Mrs or Miss")
 
             //checks if name is present
-            if (isPresent(data.name))
+            if (!isPresent(data.name))
                 error.push("name is required")
             //checks for valid name
             if (data.name?.trim() && !data.name.trim().match(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/))
                 error.push("enter valid name")
 
             //checks if phone is present or not
-            if (isPresent(data.phone))
+            if (!isPresent(data.phone))
                 error.push("phone is required")
             //checks for valid phone number
             if (data.phone?.trim() && !data.phone.trim().match(/^(\+\d{1,3}[- ]?)?\d{10}$/))
@@ -45,7 +45,7 @@ const registerUser = async function (req, res) {
                 error.push("mobile number is already in use")
 
             //check if email is present
-            if (isPresent(data.email))
+            if (!isPresent(data.email))
                 error.push("email is required")
             //validate email
             if (data.email?.trim() && !data.email.trim().match(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/))
@@ -55,7 +55,7 @@ const registerUser = async function (req, res) {
                 error.push("email is already in use")
 
             //check if password is present
-            if (isPresent(data.password))
+            if (!isPresent(data.password))
                 error.push("password is required")
             //checks password length
             if (data.password?.trim() && (data.password.length < 8 || data.password.length > 15))
