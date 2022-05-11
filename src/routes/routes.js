@@ -3,7 +3,7 @@ const router = express.Router();
 const { registerUser } = require("../controller/userController")
 const { userLogin } = require("../controller/loginController")
 const { userAuthentication } = require("../middleware/authentication")
-const { createBook, getBooks, updateBook, deleteBooksBYId } = require("../controller/bookController")
+const { createBook, getBooks, updateBook, deleteBooksBYId, getBooksReviews } = require("../controller/bookController")
 
 //User API Route Handlers
 router.post("/register", registerUser)
@@ -14,6 +14,7 @@ router.post("/books", createBook)
 router.get("/books", getBooks)
 router.put("/books/:bookId", userAuthentication, updateBook)
 router.delete("/books/:bookId", userAuthentication, deleteBooksBYId)
+router.get("/books/:bookId", getBooksReviews)
 
 
 module.exports = router

@@ -223,7 +223,7 @@ const getBooksReviews = async function(req, res){
     findBook = findBook.toJson()
     findBook["reviewsData"] = [...reviews]
 
-    res.status(201).send({status : false, message : "Books List", data : findBook})
+    res.status(200).send({status : false, message : "Books List", data : findBook})
 
 
   }
