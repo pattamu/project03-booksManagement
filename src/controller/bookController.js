@@ -2,7 +2,7 @@ const bookModel = require("../models/bookModel")
 const reviewModel = require("../models/reviewModel")
 const mongoose = require("mongoose");
 const userModel = require("../models/userModel");
-const ObjectId = mongoose.Types.ObjectId
+
 
 //Create Book
 const createBook = async function (req, res) {
@@ -92,7 +92,7 @@ const getBooks = async function (req, res) {
 
       if (allBooks.length == 0)
         return res.status(404).send({ status: false, message: "No books exists" })
-      return res.status(200).send({ status: true, message: "Success", data: sortedBooks })
+      return res.status(200).send({ status: true, message: "Success", data: allBooks })
     }
     //- Filter books list by applying filters. Query param can have any combination of below filters.
     // - By userId
@@ -210,8 +210,8 @@ const deleteBooksBYId = async function (req, res) {
 
     if (!updateBook)  // change -- add this for book not exist 
       return res.status(404).send({ status: false, message: 'book not found or already deleted' })
-
     res.status(200).send({ status: true, message: 'sucessfully deleted', data: updateBook })
+    
   } catch (error) {
     res.status(500).send({ status: false, error: error.message });
   }
