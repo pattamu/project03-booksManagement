@@ -15,7 +15,7 @@ router.post("/books", createBook)
 router.get("/books", getBooks)
 router.put("/books/:bookId", userAuthentication, updateBook)
 router.delete("/books/:bookId", userAuthentication, deleteBooksBYId)
-//router.get("/books/:bookId", getBooksReviews)
+router.get("/books/:bookId", getBooksReviews)
 
 //Review API Route Handlers
 router.post("/books/:bookId/review", createReview)

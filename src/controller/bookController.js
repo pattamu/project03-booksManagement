@@ -124,6 +124,29 @@ const getBooks = async function (req, res) {
 }
 
 
+//get book with params
+const getBooksReviews = async function(req, res){
+  try{
+    let bookId = req.params.bookId
+    if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
+
+    let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({__v : 0})
+    if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
+
+    let reviews = await reviewModel.find({bookId : bookId}).select({isDeleted : 0, createdAt : 0, updatedAt : 0, __v : 0})
+
+    findBook = findBook.toJSON()
+    findBook["reviewsData"] = reviews
+
+    res.status(200).send({status : true, message : "Books List", data : findBook})
+
+
+  }
+  catch(error){
+    res.status(500).send({status : false, message : error.message})
+  }
+}
+
 //Update Book API Function
 const updateBook = async (req, res) => {
   let data = req.body
@@ -209,27 +232,6 @@ const deleteBooksBYId = async function (req, res) {
     res.status(500).send({ status: false, error: error.message });
   }
 }
-
-const getBooksReviews = async function(req, res){
-  try{
-    let bookId = req.params.bookId
-    if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
-
-    let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }).select({__v : 0})
-    if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
-
-    let reviews = await reviewModel.find({bookId : bookId}).select({isDeleted : 0, createdAt : 0, updatedAt : 0, __v : 0})
-
-    findBook = findBook.toJSON()
-    findBook["reviewsData"] = [...reviews]
-
-    res.status(200).send({status : true, message : "Books List", data : findBook})
-
-
-  }
-  catch(error){
-    res.status(500).send({status : false, message : error.message})
-  }
-}
+ 
 
 module.exports = {getBooksReviews ,createBook, deleteBooksBYId, getBooks, updateBook }

@@ -35,6 +35,7 @@ const createReview = async (req, res) => {
         data.reviewedAt = Date.now()
         await reviewModel.create(data)
         let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: 1 } }, { new: true })
+        updatedBook._doc["reviewsData"]=await reviewModel.find({bookId},{createdAt:0,updatedAt:0,isDeleted:0,__v:0})
         res.status(201).send({
             status: true,
             message: "Review Created successfully.",
@@ -74,6 +75,7 @@ const updateReview = async function (req, res) {
             return res.status(400).send({ status: false, message: "Must provide data for updating review." })
 
         let updatedReview = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, data, { new: true })
+
         res.status(200).send({ status: true, message: "Review Created successfully.", data: updatedReview })
 
     } catch (err) {
