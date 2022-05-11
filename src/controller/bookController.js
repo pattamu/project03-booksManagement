@@ -152,7 +152,6 @@ const getBooksReviews = async function(req, res){
 const updateBook = async (req, res) => {
   let data = req.body
   let bookId = req.params.bookId
-  let authUser = req.headers['valid-auth-user_id']
   let titleRegEx = /^[,.-_ a-zA-Z0-9]+$/
   let ISBN_RegEx = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
 
@@ -170,8 +169,6 @@ const updateBook = async (req, res) => {
     if (!findBook)
       return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
 
-    if (findBook.userId != authUser)
-      return res.status(401).send({ status: false, message: "You don't have Authority to Update this Book." })
 
     if (!Object.keys(data).length)
       return res.status(400).send({ status: false, message: "Please Enter Data. Book can't be Updated without any Data." })

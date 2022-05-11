@@ -3,6 +3,7 @@ const router = express.Router();
 const { registerUser } = require("../controller/userController")
 const { userLogin } = require("../controller/loginController")
 const { userAuthentication } = require("../middleware/authentication")
+const { userAuthor } = require("../middleware/authorization")
 const { createBook, getBooks, updateBook, deleteBooksBYId, getBooksReviews } = require("../controller/bookController")
 const {createReview, updateReview, deleteReview} = require("../controller/reviewController")
 
@@ -10,12 +11,12 @@ const {createReview, updateReview, deleteReview} = require("../controller/review
 router.post("/register", registerUser)
 router.post("/login", userLogin)
 
-//Book API Route Handlers
-router.post("/books", createBook)
-router.get("/books", getBooks)
-router.put("/books/:bookId", userAuthentication, updateBook)
-router.delete("/books/:bookId", userAuthentication, deleteBooksBYId)
-router.get("/books/:bookId", getBooksReviews)
+//Book API Route Handlers. Make sure that only the owner of the books is able to create, edit or delete the book.
+router.post("/books",userAuthentication,userAuthor, createBook)
+router.get("/books",userAuthentication, getBooks)
+router.put("/books/:bookId", userAuthentication, userAuthor, updateBook)
+router.delete("/books/:bookId", userAuthentication, userAuthor, deleteBooksBYId)
+router.get("/books/:bookId",userAuthentication, userAuthor, getBooksReviews)
 
 //Review API Route Handlers
 router.post("/books/:bookId/review", createReview)
