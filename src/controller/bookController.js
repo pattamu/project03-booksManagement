@@ -152,9 +152,9 @@ const getBooksReviews = async function(req, res){
 const updateBook = async (req, res) => {
   let data = req.body
   let bookId = req.params.bookId
-  let authUser = req.headers['valid-auth-user_id']
   let titleRegEx = /^[,.-_ a-zA-Z0-9]+$/
   let ISBN_RegEx = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
+  let error = []
 
   const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
@@ -170,39 +170,40 @@ const updateBook = async (req, res) => {
     if (!findBook)
       return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
 
-    if (findBook.userId != authUser)
-      return res.status(401).send({ status: false, message: "You don't have Authority to Update this Book." })
 
     if (!Object.keys(data).length)
       return res.status(400).send({ status: false, message: "Please Enter Data. Book can't be Updated without any Data." })
 
-    if (data.title && !isValid(data.title))
-      return res.status(400).send({ status: false, message: "Please Enter some data in Title." })
+    if (data.hasOwnProperty('title') && !isValid(data.title))
+      error.push("Title can't be empty")
 
-    if (await bookModel.findOne({ title: data.title }))
-      return res.status(400).send({ status: false, message: "Book with same title is already present" })
+    if (data.title?.trim() && !titleRegEx.test(data.title.trim()))
+      error.push('Title is Invalid')
 
+    if (data.title?.trim() && await bookModel.findOne({ title: data.title }))
+      error.push('Title is already present')
 
-    if (data.title && !titleRegEx.test(data.title.trim()))
-      return res.status(400).send({ status: false, message: "Please Enter a valid Title for your Book." })
+    if (data.hasOwnProperty('ISBN') && !isValid(data.ISBN))
+      error.push("ISBN can't be empty")
 
-    if (data.ISBN && !ISBN_RegEx.test(data.ISBN.trim()))
-      return res.status(400).send({ status: false, message: "Please Enter a valid ISBN for your Book." })
+    if (data.ISBN?.trim() && !ISBN_RegEx.test(data.ISBN.trim()))
+      error.push('ISBN is Invalid')
+
+    if (data.ISBN?.trim() && await bookModel.findOne({ ISBN: data.ISBN }))
+      error.push('ISBN is already present')
+
+    if(error.length>0)
+      return res.status(400).send({status:false, message:error.join(', ')})
 
     let updateBook = await bookModel.findOneAndUpdate({
-      _id: findBook, isDeleted: false
-    }, {
+      _id: findBook, isDeleted: false}, {
       title: req.body.title,
       excerpt: req.body.excerpt,
       releasedAt: data.releasedAt,
-      ISBN: req.body.ISBN
-    }, {
-      new: true
-    })
-    if (!updateBook)
-      return res.status(404).send({ status: false, message: "Book Not Found." })
+      ISBN: req.body.ISBN}, {new: true})
 
     res.status(200).send({ status: true, message: 'Success', data: updateBook })
+    
   } catch (err) {
     res.status(500).send({ status: false, message: err.message })
   }
