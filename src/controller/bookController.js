@@ -15,6 +15,7 @@ const createBook = async function (req, res) {
     function isPresent(value) {
       if (!value || value.trim().length == 0)
         return false;
+        else return true;
     }
     function badRequest() {
       let error = []
