@@ -1,4 +1,5 @@
 const bookModel = require("../models/bookModel")
+const reviewModel = require("../models/reviewModel")
 const mongoose = require("mongoose");
 const userModel = require("../models/userModel");
 const ObjectId = mongoose.Types.ObjectId
@@ -209,4 +210,26 @@ const deleteBooksBYId = async function (req, res) {
   }
 }
 
-module.exports = { createBook, deleteBooksBYId, getBooks, updateBook }
+const getBooksReviews = async function(req, res){
+  try{
+    let bookId = req.params.bookId
+    if (!mongoose.isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
+
+    let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
+    if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
+
+    let reviews = await reviewModel.find({bookId : bookId})
+
+    findBook = findBook.toJson()
+    findBook["reviewsData"] = [...reviews]
+
+    res.status(201).send({status : false, message : "Books List", data : findBook})
+
+
+  }
+  catch(error){
+    res.status(500).send({status : false, message : error.message})
+  }
+}
+
+module.exports = {getBooksReviews ,createBook, deleteBooksBYId, getBooks, updateBook }
