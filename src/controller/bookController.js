@@ -68,7 +68,7 @@ const createBook = async function (req, res) {
       if (error.length > 0)
         return error;
     }
-    
+
     if (badRequest()) {
       let err = badRequest();
       if (typeof err == "string")
@@ -109,7 +109,7 @@ const getBooks = async function (req, res) {
       let subcategory = req.query.subcategory
 
       let allBooks = await bookModel.find({ $and: [{ $or: [{ userId: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] }).sort({ title: 1 })
-        .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+        .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).collation({locale:"en",strength:2})
 
       if (allBooks.length == 0)
         return res.status(400).send({ status: false, message: "No books with selected query params" })
