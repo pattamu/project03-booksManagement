@@ -19,7 +19,6 @@ const userAuthor = async function(req, res, next){
             userId = req.body.userId
         }
 
-        console.log(userId, verifyToken.userId)
         if(verifyToken.userId !== userId) return res.status(401).send({status : false, message : "Not Authorized"})
 
         next()
