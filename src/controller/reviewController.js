@@ -3,6 +3,11 @@ const reviewModel = require('../models/reviewModel')
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId
 
+
+const isValidObjectId = function(objectId) { // change -- add this validation to check object id type
+    return mongoose.Types.ObjectId.isValid(objectId)
+  }
+
 // create review
 const createReview = async (req, res) => {
     let bookId = req.params.bookId
@@ -86,5 +91,48 @@ const updateReview = async function (req, res) {
         res.status(500).send({ status: false, message: err.message })
     }
 }
+      // delete Rewiew
 
-module.exports = { createReview, updateReview }
+const deleteReview = async function (req, res) {
+    try {
+      let bookId = req.params.bookId
+      let reviewId = req.params.reviewId
+  
+      if(!isValidObjectId(bookId)) {       // change -- add this function
+        res.status(400).send({status: false, message: `${bookId} is not a valid book id`})
+        return
+    }
+  
+    if(!isValidObjectId(reviewId)) {       // change -- add this function
+      res.status(400).send({status: false, message: `${reviewId} is not a valid review id`})
+      return
+  }
+  
+      let checkreviewId = await reviewModel.findOne({ _id: reviewId,bookId:bookId, isDeleted: false })
+      if (!checkreviewId) {
+        return res.status(404).send({ status: false, message: 'review with this bookid does not exist' })
+      }
+  
+      let checkBookId = await bookModel.findOne({ _id: bookId, isDeleted: false })
+      if (!checkBookId) {
+        return res.status(404).send({ status: false, message: 'book does not exist' })
+      }
+  
+    
+  
+      let update = await reviewModel.findOneAndUpdate({_id:reviewId},{isDeleted:true},{new:true})
+    //   let updateCount = await bookModel.findOneAndUpdate({_id:bookId},{reviews:checkBookId.reviews-1},{new:true})
+  
+      res.status(200).send({status:true,msg:'review sucessfully deleted',data:update})
+      
+    } catch (error) {
+      res.status(500).send({ status: false, error: error.message });
+    }
+  }
+  
+  
+  
+
+
+
+module.exports = { createReview, updateReview, deleteReview }

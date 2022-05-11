@@ -21,5 +21,7 @@ router.get("/books/:bookId", getBooksReviews)
 router.post("/books/:bookId/review", createReview)
 router.put("/books/:bookId/review/:reviewId", updateReview)
 
+router.delete("/books/:bookId/review/:reviewId", deleteReview)
+
 
 module.exports = router

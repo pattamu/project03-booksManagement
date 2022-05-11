@@ -213,7 +213,9 @@ const updateBook = async (req, res) => {
 const deleteBooksBYId = async function (req, res) {
   try {
     let bookId = req.params.bookId
+    console.log(bookId)
     let authUser = req.headers['valid-auth-user_id']
+    console.log(authUser)
 
     let checkBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
 
