@@ -18,10 +18,10 @@ const createReview = async (req,res) => {
 
         if(!Object.keys(data).length)
             return res.status(400).send({ status: false, message: "Must provide data for creating review." })
-        if(!data.reviewedBy)
-            return res.status(400).send({ status: false, message: "Please enter your name under reviewedBy." })
+        // if(!data.reviewedBy)
+        //     return res.status(400).send({ status: false, message: "Please enter your name under reviewedBy." })
 
-        if(!(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
+        if(data.reviewedBy && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
             return res.status(400).send({ status: false, message: "Please enter a Valid name." })
 
         if(!data.rating)
