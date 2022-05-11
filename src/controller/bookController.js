@@ -218,12 +218,12 @@ const getBooksReviews = async function(req, res){
     let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
     if (!findBook) return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
 
-    let reviews = await reviewModel.find({bookId : bookId})
+    let reviews = await reviewModel.find({bookId : bookId}).select({isDeleted : 0})
 
     findBook = findBook.toJson()
     findBook["reviewsData"] = [...reviews]
 
-    res.status(200).send({status : false, message : "Books List", data : findBook})
+    res.status(200).send({status : true, message : "Books List", data : findBook})
 
 
   }
