@@ -76,6 +76,7 @@ const registerUser = async function (req, res) {
             return res.status(400).send({ status: false, msg: err.join(', ') })
         }
         data.name = data.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(' ')
+        
         let created = await userModel.create(data)
         res.status(201).send({ status: true, message: "Success", data: created })
     } catch (error) {

@@ -91,16 +91,10 @@ const createBook = async function (req, res) {
 const getBooks = async function (req, res) {
   try {
     if (Object.keys(req.query).length == 0) {
-      let allBooks = await bookModel.find({ isDeleted: false }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+      let allBooks = await bookModel.find({ isDeleted: false }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 }).sort({title:1})
+      
       if (allBooks.length == 0)
         return res.status(404).send({ status: false, message: "No books exists" })
-      let sortedBooks = allBooks.sort((a, b) => {
-        let first = a.title.toUpperCase()
-        let second = b.title.toUpperCase()
-        if (first < second) return -1
-        if (first > second) return 1
-        return 0
-      })
       return res.status(200).send({ status: true, message: "Success", data: sortedBooks })
     }
     //- Filter books list by applying filters. Query param can have any combination of below filters.
@@ -112,19 +106,13 @@ const getBooks = async function (req, res) {
       let category = req.query.category
       let subcategory = req.query.subcategory
 
-      let allBooks = await bookModel.find({ $and: [{ $or: [{ userId: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] })
+      let allBooks = await bookModel.find({ $and: [{ $or: [{ userId: userId }, { category: category }, { subcategory: subcategory }] }, { isDeleted: false }] }).sort({title:1})
         .select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
+
       if (allBooks.length == 0)
         return res.status(400).send({ status: false, message: "No books with selected query params" })
 
-      let sortedBooks = allBooks.sort((a, b) => {
-        let first = a.title.toUpperCase()
-        let second = b.title.toUpperCase()
-        if (first < second) return -1
-        if (first > second) return 1
-        return 0
-      })
-      res.status(200).send({ status: true, message: "Success", data: sortedBooks })
+      res.status(200).send({ status: true, message: "Success", data: allBooks })
     }
   }
   catch (error) {
