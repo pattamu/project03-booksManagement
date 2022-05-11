@@ -3,7 +3,7 @@ const router = express.Router();
 const { registerUser } = require("../controller/userController")
 const { userLogin } = require("../controller/loginController")
 const { userAuthentication } = require("../middleware/authentication")
-const { createBook, getBooks, updateBook, deleteBooksBYId } = require("../controller/bookController")
+const { createBook, getBooks, updateBook, deleteBooksBYId, getBooksReviews } = require("../controller/bookController")
 const {createReview, updateReview, deleteReview} = require("../controller/reviewController")
 
 //User API Route Handlers
