@@ -141,11 +141,12 @@ const getBooksReviews = async function (req, res) {
   }
 }
 
-//Update Book API Function
+
+// Update Book API --->
 const updateBook = async (req, res) => {
   let data = req.body
   let bookId = req.params.bookId
-  let titleRegEx = /^[,.-_ a-zA-Z0-9]+$/
+  let titleRegEx = /^[-'*",._ a-zA-Z0-9]+$/
   let ISBN_RegEx = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
   let error = []
 
@@ -180,6 +181,12 @@ const updateBook = async (req, res) => {
 
     if (data.ISBN?.trim() && await bookModel.findOne({ ISBN: data.ISBN }))
       error.push('ISBN is already present')
+    
+    if (data.hasOwnProperty('releasedAt') && !isValid(data.releasedAt))
+      error.push("releasedAt Date can't be empty")
+
+    if (data.releasedAt?.trim() && !(/^\d{4}[-]\d{2}[-]\d{2}$/).test(data.releasedAt.trim()))
+      error.push('releasedAt Date is Invalid')
 
     if (error.length > 0)
       return res.status(400).send({ status: false, message: error.join(', ') })
@@ -201,7 +208,7 @@ const updateBook = async (req, res) => {
 }
 
 
-//        Delete Api
+// Delete Book API ---> 
 const deleteBooksBYId = async function (req, res) {
   try {
     let bookId = req.params.bookId
