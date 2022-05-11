@@ -151,7 +151,7 @@ const updateBook = async (req, res) => {
         if (!mongoose.isValidObjectId(bookId))
             return res.status(400).send({ status: false, message: "Please enter a Valid Book ObjectId." })
 
-        let findBook = await bookModel.findById(bookId)
+        let findBook = await bookModel.findOne({_id:bookId,isDeleted:false})
         if (!findBook)
             return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
 
