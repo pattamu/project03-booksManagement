@@ -4,6 +4,7 @@ const { registerUser } = require("../controller/userController")
 const { userLogin } = require("../controller/loginController")
 const { userAuthentication } = require("../middleware/authentication")
 const { createBook, getBooks, updateBook, deleteBooksBYId } = require("../controller/bookController")
+const {createReview, updateReview, deleteReview} = require("../controller/reviewController")
 
 //User API Route Handlers
 router.post("/register", registerUser)
@@ -14,6 +15,9 @@ router.post("/books", createBook)
 router.get("/books", getBooks)
 router.put("/books/:bookId", userAuthentication, updateBook)
 router.delete("/books/:bookId", userAuthentication, deleteBooksBYId)
+
+//Review API Route Handlers
+router.post("/books/:bookId/review", createReview)
 
 
 module.exports = router
