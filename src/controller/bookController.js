@@ -56,6 +56,8 @@ const createBook = async function (req, res) {
             error.push('subcategory values are Invalid')
         }else if(!isPresent(data.subcategory))
           error.push('subcategory is required')
+        else if(data.subcategory?.trim() && data.subcategory.match(/[^-_a-zA-Z]/))
+          error.push('subcategory values are Invalid')
       }else error.push('subcategory is required')
 
       //check if releasedAt is present
