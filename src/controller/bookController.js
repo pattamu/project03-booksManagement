@@ -157,6 +157,10 @@ const updateBook = async (req, res) => {
   }
 
   try {
+    let err = Object.keys(data).filter(x => !['title','excerpt','releasedAt','ISBN'].includes(x))
+    if(err.length) 
+      return res.status(400).send({status:false, message:err.join(', ')+`${err.length>1?' are Invalid fields.':' is an Invalid field.'}`})
+
     let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
     if (!findBook)
       return res.status(404).send({ status: false, message: "There is No Book available with this bookId." })
