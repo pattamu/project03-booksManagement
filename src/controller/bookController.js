@@ -62,8 +62,8 @@ const createBook = async function (req, res) {
       if (!isPresent(data.releasedAt))
         error.push("releasedAt is required")
       //check for releasedAt format
-      if (data.releasedAt && !data.releasedAt.trim().match(/^\d{4}[-]\d{2}[-]\d{2}$/))
-        error.push(`releasedAt must in "YYYY-MM-DD" format`)
+      if (data.releasedAt && !data.releasedAt.trim().match(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/))
+        error.push(`enter valid date in 'YYYY-MM-DD' format`)
 
       if (error.length > 0)
         return error;
@@ -95,7 +95,7 @@ const getBooks = async function (req, res) {
 
       if (allBooks.length == 0)
         return res.status(404).send({ status: false, message: "No books exists" })
-      return res.status(200).send({ status: true, message: "Success", data: allBooks })
+      return res.status(200).send({ status: true, message: `Books List`, data: allBooks })
     }
     //- Filter books list by applying filters. Query param can have any combination of below filters.
     // - By userId
@@ -112,7 +112,7 @@ const getBooks = async function (req, res) {
       if (allBooks.length == 0)
         return res.status(400).send({ status: false, message: "No books with selected query params" })
 
-      res.status(200).send({ status: true, message: "Success", data: allBooks })
+      res.status(200).send({ status: true, message: `Books List`, data: allBooks })
     }
   }
   catch (error) {
@@ -189,7 +189,7 @@ const updateBook = async (req, res) => {
     if (data.hasOwnProperty('releasedAt') && !isValid(data.releasedAt))
       error.push("releasedAt Date can't be empty")
 
-    if (data.releasedAt?.trim() && !(/^\d{4}[-]\d{2}[-]\d{2}$/).test(data.releasedAt.trim()))
+    if (data.releasedAt?.trim() && !(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/).test(data.releasedAt.trim()))
       error.push('releasedAt Date is Invalid')
 
     if (error.length > 0)
