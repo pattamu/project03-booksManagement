@@ -23,6 +23,7 @@ const createBook = async function (req, res) {
       //check if title is present
       if (!isPresent(data.title))
         error.push("title is required")
+
       //checks for duplicate title
       if (findTitle)
         error.push("book with same title is already present")
@@ -31,15 +32,11 @@ const createBook = async function (req, res) {
       if (!isPresent(data.excerpt))
         error.push("excerpt is required")
 
-      //check if userId is present
-      if (!isPresent(data.userId))
-        error.push("userId is required")
-
       //check if ISBN is present
       if (!isPresent(data.ISBN))
         error.push("ISBN is required")
       //checks for valid ISBN
-      if (data.ISBN && !data.ISBN.trim().match(isbnRegex))
+      if (data.ISBN?.trim() && !data.ISBN.trim().match(isbnRegex))
         error.push("enter valid ISBN")
       //checks for duplicate ISBN
       if (findISBN)
@@ -48,10 +45,18 @@ const createBook = async function (req, res) {
       //check if category is present
       if (!isPresent(data.category))
         error.push("category is required")
+      //checks for valid catagory
+      if (data.category?.trim() && data.category.trim().match(/[^-_a-zA-Z]/))
+        error.push("enter valid category")
 
-      //check if subcategory is present
-      if (!data.subcategory || data.subcategory.length == 0 || data.subcategory.some(x => x.match(/[^_a-zA-Z]/)))
-        error.push("subcategory is required or invalid")
+      //checks for valid subcategory conditions
+      if(data.hasOwnProperty('subcategory')){
+        if(Array.isArray(data.subcategory)){
+          if(!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.match(/[^-_a-zA-Z]/)))
+            error.push('subcategory values are Invalid')
+        }else if(!isPresent(data.subcategory))
+          error.push('subcategory is required')
+      }else error.push('subcategory is required')
 
       //check if releasedAt is present
       if (!isPresent(data.releasedAt))
@@ -66,14 +71,12 @@ const createBook = async function (req, res) {
 
     if (badRequest()) {
       let err = badRequest();
-      if (typeof err == "string")
-        return res.status(400).send({ status: false, msg: err })
-      return res.status(400).send({ status: false, msg: err.join(', ') })
+      return res.status(400).send({ status: false, msg: err })
     }
 
     if (!await userModel.findById(data.userId))
       return res.status(404).send({ status: false, message: "user not found" })
-
+    if(Array.isArray(data.subcategory))
     data.subcategory = data.subcategory.filter(x => x)
 
     let created = await bookModel.create(data)
@@ -146,7 +149,7 @@ const getBooksReviews = async function (req, res) {
 const updateBook = async (req, res) => {
   let data = req.body
   let bookId = req.params.bookId
-  let titleRegEx = /^[-'*",._ a-zA-Z0-9]+$/
+  // let titleRegEx = /^[-'*",._ a-zA-Z0-9]+$/
   let ISBN_RegEx = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
   let error = []
 
@@ -170,9 +173,6 @@ const updateBook = async (req, res) => {
 
     if (data.hasOwnProperty('title') && !isValid(data.title))
       error.push("Title can't be empty")
-
-    if (data.title?.trim() && !titleRegEx.test(data.title.trim()))
-      error.push('Title is Invalid')
 
     if (data.title?.trim() && await bookModel.findOne({ title: data.title }))
       error.push('Title is already present')
