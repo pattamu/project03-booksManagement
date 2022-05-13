@@ -43,6 +43,7 @@ const createReview = async (req, res) => {
 
         data.bookId = bookId
         data.reviewedAt = Date.now()
+        data.reviewedBy = data.reviewedBy?.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(' ') 
         await reviewModel.create(data)
         let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: 1 } }, { new: true })
         updatedBook._doc["reviewsData"] = await reviewModel.find({ bookId }, { createdAt: 0, updatedAt: 0, isDeleted: 0, __v: 0 })

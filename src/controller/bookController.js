@@ -1,8 +1,13 @@
 const bookModel = require("../models/bookModel")
 const reviewModel = require("../models/reviewModel")
 const mongoose = require("mongoose");
-const userModel = require("../models/userModel");
 
+//check Validity
+const isValid = (value) => {
+  if (typeof value === 'undefined' || value === null) return false
+  if (typeof value === 'string' && value.trim().length === 0) return false
+  return true;
+}
 
 //Create Book
 const createBook = async function (req, res) {
@@ -12,16 +17,11 @@ const createBook = async function (req, res) {
     let findISBN = await bookModel.findOne({ ISBN: data.ISBN })
     let isbnRegex = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
 
-    function isPresent(value) {
-      if (!value || value.trim().length == 0)
-        return false;
-      else return true;
-    }
     function badRequest() {
       let error = []
 
       //check if title is present
-      if (!isPresent(data.title))
+      if (!isValid(data.title))
         error.push("title is required")
 
       //checks for duplicate title
@@ -29,11 +29,11 @@ const createBook = async function (req, res) {
         error.push("book with same title is already present")
 
       //check if excerpt is present
-      if (!isPresent(data.excerpt))
+      if (!isValid(data.excerpt))
         error.push("excerpt is required")
 
       //check if ISBN is present
-      if (!isPresent(data.ISBN))
+      if (!isValid(data.ISBN))
         error.push("ISBN is required")
       //checks for valid ISBN
       if (data.ISBN?.trim() && !data.ISBN.trim().match(isbnRegex))
@@ -43,7 +43,7 @@ const createBook = async function (req, res) {
         error.push("book with same ISBN is already present")
 
       //check if category is present
-      if (!isPresent(data.category))
+      if (!isValid(data.category))
         error.push("category is required")
       //checks for valid catagory
       if (data.category?.trim() && data.category.trim().match(/[^-_a-zA-Z]/))
@@ -54,17 +54,17 @@ const createBook = async function (req, res) {
         if(Array.isArray(data.subcategory)){
           if(!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.match(/[^-_a-zA-Z]/)))
             error.push('subcategory values are Invalid')
-        }else if(!isPresent(data.subcategory))
+        }else if(!isValid(data.subcategory))
           error.push('subcategory is required')
         else if(data.subcategory?.trim() && data.subcategory.match(/[^-_a-zA-Z]/))
           error.push('subcategory values are Invalid')
       }else error.push('subcategory is required')
 
-      //check if releasedAt is present
-      if (!isPresent(data.releasedAt))
+      //check if releasedAt Date is present
+      if (!isValid(data.releasedAt))
         error.push("releasedAt is required")
-      //check for releasedAt format
-      if (data.releasedAt && !data.releasedAt.trim().match(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/))
+      //check for releasedAt Date format
+      if (data.releasedAt?.trim() && !data.releasedAt.trim().match(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/))
         error.push(`enter valid date in 'YYYY-MM-DD' format`)
 
       if (error.length > 0)
@@ -152,12 +152,6 @@ const updateBook = async (req, res) => {
   // let titleRegEx = /^[-'*",._ a-zA-Z0-9]+$/
   let ISBN_RegEx = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
   let error = []
-
-  const isValid = function (value) {
-    if (typeof value === 'undefined' || value === null) return false
-    if (typeof value === 'string' && value.trim().length === 0) return false
-    return true;
-  }
 
   try {
     let err = Object.keys(data).filter(x => !['title','excerpt','releasedAt','ISBN'].includes(x))

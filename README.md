@@ -1,5 +1,4 @@
 # project-booksManagementGroup25
-# project-booksManagementGroup25
 # Uranium
 
 ### Key points
