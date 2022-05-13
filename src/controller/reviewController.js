@@ -26,16 +26,16 @@ const createReview = async (req, res) => {
         if (!Object.keys(data).length)
             error.push('Must provide data for creating review')
 
-        if (data.reviewedBy?.trim() == '')
+        if (data.hasOwnProperty('reviewedBy') && (data.reviewedBy?.trim() == '' || data.reviewedBy?.trim()==null))
             error.push('Enter your Name')
 
         if (data.reviewedBy?.trim() && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
             error.push('Please enter a Valid Name')
 
-        if (!data.rating)
+        if (!isValid(data.rating))
             error.push('Give some rating between 1 to 5')
 
-        if (typeof data.rating != 'number' || data.rating < 1 || data.rating > 5)
+        if (isValid(data.rating) && (isNaN(data.rating) || data.rating < 1 || data.rating > 5))
             error.push('Rating should be an Integer & between 1 to 5')
 
         if (error.length > 0)
