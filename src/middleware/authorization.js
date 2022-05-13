@@ -1,5 +1,6 @@
 const {decodeToken} = require('../controller/loginController')
 const bookModel = require("../models/bookModel")
+const userModel = require("../models/userModel")
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId
 
@@ -24,7 +25,9 @@ const userAuthor = async function(req, res, next){
             return res.status(400).send ({status:false, message:"Oops, you forgot to fill data inside request body"})
             userId = req.body.userId
             if (!ObjectId.isValid(userId))
-            return res.status(400).send ({status:false, message:"enter valid userId"})
+                return res.status(400).send ({status:false, message:"enter valid userId"})
+            if (!await userModel.findById(userId))
+                return res.status(404).send({ status: false, message: "user not found" })
         }
         if(verifyToken.userId !== userId) return res.status(401).send({status : false, message : "Not Authorized"})
 

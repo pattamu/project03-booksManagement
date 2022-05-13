@@ -76,11 +76,9 @@ const createBook = async function (req, res) {
       return res.status(400).send({ status: false, msg: err })
     }
 
-    if (!await userModel.findById(data.userId))
-      return res.status(404).send({ status: false, message: "user not found" })
     if(Array.isArray(data.subcategory))
     data.subcategory = data.subcategory.filter(x => x)
-
+    data.isDeleted = false
     let created = await bookModel.create(data)
     res.status(201).send({ status: true, message: "Success", data: created })
   } catch (error) {
