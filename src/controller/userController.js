@@ -24,8 +24,7 @@ const registerUser = async function (req, res) {
             if (!isValid(data.title))
                 error.push("title is required")
             //check for enum values
-            let arr = ["Mr", "Mrs", "Miss"]
-            if (data.title?.trim() && !arr.includes(data.title.trim()))
+            if (data.title?.trim() && !["Mr", "Mrs", "Miss"].includes(data.title.trim()))
                 error.push("title can only be Mr,Mrs or Miss")
 
             //checks if name is present

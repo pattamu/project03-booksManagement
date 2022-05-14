@@ -16,35 +16,42 @@ const createReview = async (req, res) => {
     let data = req.body
     let error = []
     try {
+        //checks for Invalid BookId
         if (!mongoose.isValidObjectId(bookId))
             return res.status(400).send({ status: false, message: "Book Id is Invalid." })
-
+        //checks if BookId exists in Books collection
         let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
         if (!findBook)
             return res.status(404).send({ status: false, message: "Book Not found." })
 
+        //checks if body is empty
         if (!Object.keys(data).length)
             error.push('Must provide data for creating review')
 
-        if (data.hasOwnProperty('reviewedBy') && (data.reviewedBy?.trim() == '' || data.reviewedBy?.trim()==null))
-            error.push('Enter your Name')
-
-        if (data.reviewedBy?.trim() && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
+        //if reviewedBy field is empty then 'Guest' will be stored in reviewedBy 
+        if (data.hasOwnProperty('reviewedBy') && !isValid(data.reviewedBy))
+            delete data.reviewedBy
+        //if reviewedBy is present then check if it's a valid name
+        if (isValid(data.reviewedBy) && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
             error.push('Please enter a Valid Name')
 
+        //checks if rating field is present
         if (!isValid(data.rating))
             error.push('Give some rating between 1 to 5')
-
+        //check if rating is valid and bewteen 1-5, if present
         if (isValid(data.rating) && (isNaN(data.rating) || data.rating < 1 || data.rating > 5))
             error.push('Rating should be an Integer & between 1 to 5')
 
+        //checks if error[] contains some errors
         if (error.length > 0)
             return res.status(400).send({ status: false, message: error.join(', ') })
 
+        //adding bookId & reviewedAt Date to data obj before creation & formating reviewedBy name
         data.bookId = bookId
         data.reviewedAt = Date.now()
         data.reviewedBy = data.reviewedBy?.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(' ') 
         await reviewModel.create(data)
+        //updating reviews count in bookModel
         let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: 1 } }, { new: true })
         updatedBook._doc["reviewsData"] = await reviewModel.find({ bookId }, { createdAt: 0, updatedAt: 0, isDeleted: 0, __v: 0 })
         res.status(201).send({
@@ -81,27 +88,29 @@ const updateReview = async function (req, res) {
             error.push("enter valid bookId")
         if (!ObjectId.isValid(reviewId))
             error.push("enter valid reviewId")
-        
-        if (data.hasOwnProperty('reviewedBy') && !isValid(data.reviewedBy))
-            error.push('Enter your Name')
-
-        if (data.reviewedBy?.trim() && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
-            error.push('Name is Invalid')
-        
-        if (data.hasOwnProperty('rating') && typeof data.rating!=='number')
-            error.push('Invalid Rating: Integers only allowed')
-
-        if (typeof data.rating=='number' && (data.rating < 1 || data.rating > 5))
-            error.push('Rating should be an Integer & between 1 to 5')
-
-        if (error.length > 0)
-            return res.status(400).send({ status: false, message: error })
 
         //data not found
         if (!await bookModel.findOne({ _id: bookId, isDeleted: false }))
             return res.status(404).send({ status: false, message: "book not found or it is deleted" })
         if (!await reviewModel.findOne({ _id: reviewId, bookId: bookId, isDeleted: false }))
             return res.status(404).send({ status: false, message: "review not found or it is deleted" })
+
+        //checks if reviewedBy is empty then name won't be updated
+        if (data.hasOwnProperty('reviewedBy') && !isValid(data.reviewedBy))
+            delete data.reviewedBy
+        //checks if reviewedBy name is valid, if present
+        if (isValid(data.reviewedBy) && !(/^(?![\. ])[a-zA-Z\. ]+(?<! )$/).test(data.reviewedBy.trim()))
+            error.push('Name is Invalid')
+        
+        //checks if rating is present and not NaN
+        if (data.hasOwnProperty('rating') && (isNaN(data.rating) || !isValid(data.rating)))
+            error.push('Invalid Rating: Integers only allowed')
+        //checks if rating is valid 
+        if (typeof data.rating=='number' && (data.rating < 1 || data.rating > 5))
+            error.push('Rating should be an Integer & between 1 to 5')
+        
+        if (error.length > 0)
+            return res.status(400).send({ status: false, message: error })
 
         let updatedReview = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, data, { new: true })
 
