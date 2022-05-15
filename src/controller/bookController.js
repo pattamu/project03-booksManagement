@@ -52,7 +52,7 @@ const createBook = async function (req, res) {
       //checks for valid subcategory conditions
       if(data.hasOwnProperty('subcategory')){
         if(Array.isArray(data.subcategory)){
-          if(!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.match(/[^-_a-zA-Z]/)))
+          if(!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.trim().match(/[^-_a-zA-Z]/)))
             error.push('subcategory values are Invalid')
         }else if(!isValid(data.subcategory))
           error.push('subcategory is required')
@@ -77,7 +77,7 @@ const createBook = async function (req, res) {
     }
 
     if(Array.isArray(data.subcategory))
-    data.subcategory = data.subcategory.filter(x => x)
+    data.subcategory = data.subcategory.filter(x => x.trim())
     data.isDeleted = false
     let created = await bookModel.create(data)
     res.status(201).send({ status: true, message: "Success", data: created })
