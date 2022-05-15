@@ -112,6 +112,7 @@ const updateReview = async function (req, res) {
         if (error.length > 0)
             return res.status(400).send({ status: false, message: error })
 
+        data.reviewedBy = data.reviewedBy?.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(' ') 
         let updatedReview = await reviewModel.findOneAndUpdate({ _id: reviewId, isDeleted: false }, data, { new: true })
 
         res.status(200).send({ status: true, message: "Review Created successfully.", data: updatedReview })
@@ -156,3 +157,5 @@ const deleteReview = async function (req, res) {
 
 
 module.exports = { createReview, updateReview, deleteReview }
+
+
