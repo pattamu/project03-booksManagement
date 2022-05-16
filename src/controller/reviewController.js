@@ -44,7 +44,7 @@ const createReview = async (req, res) => {
 
         //checks if error[] contains some errors
         if (error.length > 0)
-            return res.status(400).send({ status: false, message: error.join(', ') })
+            return res.status(400).send({ status: false, message: error })
 
         //adding bookId & reviewedAt Date to data obj before creation & formating reviewedBy name
         data.bookId = bookId
@@ -90,10 +90,12 @@ const updateReview = async function (req, res) {
             error.push("enter valid reviewId")
 
         //data not found
-        if (!await bookModel.findOne({ _id: bookId, isDeleted: false }))
-            return res.status(404).send({ status: false, message: "book not found or it is deleted" })
-        if (!await reviewModel.findOne({ _id: reviewId, bookId: bookId, isDeleted: false }))
-            return res.status(404).send({ status: false, message: "review not found or it is deleted" })
+        if(ObjectId.isValid(bookId) && ObjectId.isValid(reviewId)){
+            if (!await bookModel.findOne({ _id: bookId, isDeleted: false }))
+                return res.status(404).send({ status: false, message: "book not found or it is deleted" })
+            if (!await reviewModel.findOne({ _id: reviewId, bookId: bookId, isDeleted: false }))
+                return res.status(404).send({ status: false, message: "review not found or it is deleted" })
+        }
 
         //checks if reviewedBy is empty then name won't be updated
         if (data.hasOwnProperty('reviewedBy') && !isValid(data.reviewedBy))

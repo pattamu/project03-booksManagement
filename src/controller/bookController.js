@@ -187,7 +187,7 @@ const updateBook = async (req, res) => {
       error.push('releasedAt Date is Invalid')
 
     if (error.length > 0)
-      return res.status(400).send({ status: false, message: error.join(', ') })
+      return res.status(400).send({ status: false, message: error })
 
     let updateBook = await bookModel.findOneAndUpdate({
       _id: findBook, isDeleted: false
