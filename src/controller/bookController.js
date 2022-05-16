@@ -13,71 +13,63 @@ const isValid = (value) => {
 const createBook = async function (req, res) {
   try {
     let data = req.body
+    let error = []
     let findTitle = await bookModel.findOne({ title: data.title }).collation({ locale: "en", strength: 2 })
     let findISBN = await bookModel.findOne({ ISBN: data.ISBN })
     let isbnRegex = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
 
-    function badRequest() {
-      let error = []
+    //check if title is present
+    if (!isValid(data.title))
+      error.push("title is required")
 
-      //check if title is present
-      if (!isValid(data.title))
-        error.push("title is required")
+    //checks for duplicate title
+    if (findTitle)
+      error.push("book with same title is already present")
 
-      //checks for duplicate title
-      if (findTitle)
-        error.push("book with same title is already present")
+    //check if excerpt is present
+    if (!isValid(data.excerpt))
+      error.push("excerpt is required")
 
-      //check if excerpt is present
-      if (!isValid(data.excerpt))
-        error.push("excerpt is required")
+    //check if ISBN is present
+    if (!isValid(data.ISBN))
+      error.push("ISBN is required")
+    //checks for valid ISBN
+    if (data.ISBN?.trim() && !data.ISBN.trim().match(isbnRegex))
+      error.push("enter valid ISBN")
+    //checks for duplicate ISBN
+    if (findISBN)
+      error.push("book with same ISBN is already present")
 
-      //check if ISBN is present
-      if (!isValid(data.ISBN))
-        error.push("ISBN is required")
-      //checks for valid ISBN
-      if (data.ISBN?.trim() && !data.ISBN.trim().match(isbnRegex))
-        error.push("enter valid ISBN")
-      //checks for duplicate ISBN
-      if (findISBN)
-        error.push("book with same ISBN is already present")
+    //check if category is present
+    if (!isValid(data.category))
+      error.push("category is required")
+    //checks for valid catagory
+    if (data.category?.trim() && data.category.trim().match(/[^-_a-zA-Z]/))
+      error.push("enter valid category")
 
-      //check if category is present
-      if (!isValid(data.category))
-        error.push("category is required")
-      //checks for valid catagory
-      if (data.category?.trim() && data.category.trim().match(/[^-_a-zA-Z]/))
-        error.push("enter valid category")
-
-      //checks for valid subcategory conditions
-      if(data.hasOwnProperty('subcategory')){
-        if(Array.isArray(data.subcategory)){
-          if(!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.trim().match(/[^-_a-zA-Z]/)))
-            error.push('subcategory values are Invalid')
-        }else if(!isValid(data.subcategory))
-          error.push('subcategory is required')
-        else if(data.subcategory?.trim() && data.subcategory.match(/[^-_a-zA-Z]/))
+    //checks for valid subcategory conditions
+    if (data.hasOwnProperty('subcategory')) {
+      if (Array.isArray(data.subcategory)) {
+        if (!data.subcategory.some(x => x.trim()) || data.subcategory.some(x => x.trim().match(/[^-_a-zA-Z]/)))
           error.push('subcategory values are Invalid')
-      }else error.push('subcategory is required')
+      } else if (!isValid(data.subcategory))
+        error.push('subcategory is required')
+      else if (data.subcategory?.trim() && data.subcategory.match(/[^-_a-zA-Z]/))
+        error.push('subcategory values are Invalid')
+    } else error.push('subcategory is required')
 
-      //check if releasedAt Date is present
-      if (!isValid(data.releasedAt))
-        error.push("releasedAt is required")
-      //check for releasedAt Date format
-      if (data.releasedAt?.trim() && !data.releasedAt.trim().match(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/))
-        error.push(`enter valid date in 'YYYY-MM-DD' format`)
+    //check if releasedAt Date is present
+    if (!isValid(data.releasedAt))
+      error.push("releasedAt is required")
+    //check for releasedAt Date format
+    if (data.releasedAt?.trim() && !data.releasedAt.trim().match(/^(19|20)\d\d[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[01])$/))
+      error.push(`enter valid date in 'YYYY-MM-DD' format`)
 
-      if (error.length > 0)
-        return error;
-    }
+    if (error.length > 0)
+      return res.status(400).send({ status: false, msg: error })
 
-    if (badRequest()) {
-      let err = badRequest();
-      return res.status(400).send({ status: false, msg: err })
-    }
-
-    if(Array.isArray(data.subcategory))
-    data.subcategory = data.subcategory.filter(x => x.trim())
+    if (Array.isArray(data.subcategory))
+      data.subcategory = data.subcategory.filter(x => x.trim())
     data.isDeleted = false
     let created = await bookModel.create(data)
     res.status(201).send({ status: true, message: "Success", data: created })
@@ -154,9 +146,9 @@ const updateBook = async (req, res) => {
   let error = []
 
   try {
-    let err = Object.keys(data).filter(x => !['title','excerpt','releasedAt','ISBN'].includes(x))
-    if(err.length) 
-      return res.status(400).send({status:false, message:err.join(', ')+`${err.length>1?' are Invalid fields.':' is an Invalid field.'}`})
+    let err = Object.keys(data).filter(x => !['title', 'excerpt', 'releasedAt', 'ISBN'].includes(x))
+    if (err.length)
+      return res.status(400).send({ status: false, message: err.join(', ') + `${err.length > 1 ? ' are Invalid fields.' : ' is an Invalid field.'}` })
 
     let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false })
     if (!findBook)
@@ -179,7 +171,7 @@ const updateBook = async (req, res) => {
 
     if (data.ISBN?.trim() && await bookModel.findOne({ ISBN: data.ISBN }))
       error.push('ISBN is already present')
-    
+
     if (data.hasOwnProperty('releasedAt') && !isValid(data.releasedAt))
       error.push("releasedAt Date can't be empty")
 
@@ -216,7 +208,7 @@ const deleteBooksBYId = async function (req, res) {
     if (!updateBook)  // change -- add this for book not exist 
       return res.status(404).send({ status: false, message: 'book not found or already deleted' })
     res.status(200).send({ status: true, message: 'sucessfully deleted', data: updateBook })
-    
+
   } catch (error) {
     res.status(500).send({ status: false, error: error.message });
   }
