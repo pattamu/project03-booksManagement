@@ -37,6 +37,8 @@ const registerUser = async function (req, res) {
             //checks if phone is present or not
             if (!isValid(data.phone))
                 error.push("phone number is required")
+            //converting phone no. to string
+            data.phone = data.phone.toString().trim()
             //checks for valid phone number
             if (data.phone?.trim() && !data.phone.trim().match(/^(\+\d{1,3}[- ]?)?\d{10}$/))
                 error.push("enter valid mobile number")
@@ -70,9 +72,7 @@ const registerUser = async function (req, res) {
         }
         if (badRequest()) {
             let err = badRequest();
-            if (typeof err == "string")
-                return res.status(400).send({ status: false, msg: err })
-            return res.status(400).send({ status: false, msg: err.join(', ')+'.' })
+            return res.status(400).send({ status: false, msg: err })
         }
         data.name = data.name.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(' ') 
 
