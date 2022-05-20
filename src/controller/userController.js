@@ -1,4 +1,5 @@
 const userModel = require("../models/userModel")
+const pinCheck = require('./axios')
 
 //check Validity
 const isValid = (value) => {
@@ -62,8 +63,13 @@ const registerUser = async function (req, res) {
             error.push("password must have 8-15 characters")
 
         //check if address have valid pincode
-        if (data.address?.pincode && !data.address.pincode.match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/))
-            error.push("enter a valid pincode")
+        if (data.address?.pincode){
+            if(data.address.pincode.match(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/)){
+                if(!await pinCheck(data.address.pincode))
+                    error.push("pincode doesn't exist")
+            }else 
+                error.push('enter a valid pincode')
+        } 
 
         if (error.length > 0)
             return res.status(400).send({ status: false, msg: error })
