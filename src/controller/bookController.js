@@ -12,8 +12,8 @@ aws.config.update({
   region: "ap-south-1"
 })
 
-let uploadFile= async ( file) =>{
- return new Promise( function(resolve, reject) {
+let uploadFile= async (file) =>{
+  return new Promise( function(resolve, reject) {
   // this function will upload file to aws and return the link
   let s3= new aws.S3({apiVersion: '2006-03-01'}); // we will be using the s3 service of aws
 
@@ -28,13 +28,18 @@ let uploadFile= async ( file) =>{
       if(err) {
           return reject({"error": err})
       }
-      console.log(data)
+      // console.log(data)
       console.log("file uploaded succesfully")
       return resolve(data.Location)
   })
 })
 }
 
+function isFileImage(file) {
+  let ext = ['png', 'jpg', 'jpeg']
+  let fileExt = file.originalname.split('.')
+  return ext.includes(fileExt[1])
+}
 /*********************************************************************************/
 //check Validity
 const isValid = (value) => {
@@ -46,19 +51,22 @@ const isValid = (value) => {
 //Create Book
 const createBook = async function (req, res) {
   try {
-    let uploadedFileURL
-    let files= req.files
-        if(files && files.length>0)
-          uploadedFileURL = await uploadFile( files[0] )
-        else return res.status(400).send({ msg: "No file found" })
-        
     let data = JSON.parse(JSON.stringify(req.body))
-    console.log(data)
     let error = []
     let findTitle = await bookModel.findOne({ title: data.title }).collation({ locale: "en", strength: 2 })
     let findISBN = await bookModel.findOne({ ISBN: data.ISBN })
     let isbnRegex = /^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$/
 
+    //check if file is present
+    if(!req.files.length)
+      error.push("file is required")
+    //check if file is an image (Remeber 'field name' in postman is optional while uploading file)
+    if(req.files.length){
+      let check = isFileImage(req.files[0])
+      if(!check) 
+        error.push('invalid file, image only allowed')
+    }
+    
     //check if title is present
     if (!isValid(data.title))
       error.push("title is required")
@@ -90,9 +98,9 @@ const createBook = async function (req, res) {
 
     /***************************************************************/
 
-    if(data.subcategory.includes('[' && ']'))
+    if(data.subcategory.includes('[' && ']') || data.subcategory.includes(','))
     data.subcategory = data.subcategory.split(/[",\[\]]/).filter(x=>x.trim())
-    
+
     /***************************************************************/
 
     //checks for valid subcategory conditions
@@ -119,7 +127,7 @@ const createBook = async function (req, res) {
     if (Array.isArray(data.subcategory))
       data.subcategory = data.subcategory.filter(x => x.trim())
     data.isDeleted = false
-    data.bookCover = uploadedFileURL
+    data.bookCover = await uploadFile( req.files[0] )//getting aws link for the uploaded file after stroing it in aws s3
     let created = await bookModel.create(data)
     res.status(201).send({ status: true, message: "Success", data: created })
   } catch (error) {
