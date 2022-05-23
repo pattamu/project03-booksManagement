@@ -1,7 +1,41 @@
+const mongoose = require("mongoose");
+const aws = require("aws-sdk")
+
 const bookModel = require("../models/bookModel")
 const reviewModel = require("../models/reviewModel")
-const mongoose = require("mongoose");
 
+/*************************AWS File Upload*****************************************/
+
+aws.config.update({
+  accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+  secretAccessKey: "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",
+  region: "ap-south-1"
+})
+
+let uploadFile= async ( file) =>{
+ return new Promise( function(resolve, reject) {
+  // this function will upload file to aws and return the link
+  let s3= new aws.S3({apiVersion: '2006-03-01'}); // we will be using the s3 service of aws
+
+  var uploadParams= {
+      ACL: "public-read",
+      Bucket: "classroom-training-bucket",
+      Key: "sandeep/" + file.originalname, 
+      Body: file.buffer
+  }
+
+  s3.upload( uploadParams, function (err, data ){
+      if(err) {
+          return reject({"error": err})
+      }
+      console.log(data)
+      console.log("file uploaded succesfully")
+      return resolve(data.Location)
+  })
+})
+}
+
+/*********************************************************************************/
 //check Validity
 const isValid = (value) => {
   if (typeof value === 'undefined' || value === null) return false
@@ -12,7 +46,14 @@ const isValid = (value) => {
 //Create Book
 const createBook = async function (req, res) {
   try {
-    let data = req.body
+    let uploadedFileURL
+    let files= req.files
+        if(files && files.length>0)
+          uploadedFileURL = await uploadFile( files[0] )
+        else return res.status(400).send({ msg: "No file found" })
+        
+    let data = JSON.parse(JSON.stringify(req.body))
+    console.log(data)
     let error = []
     let findTitle = await bookModel.findOne({ title: data.title }).collation({ locale: "en", strength: 2 })
     let findISBN = await bookModel.findOne({ ISBN: data.ISBN })
@@ -47,6 +88,13 @@ const createBook = async function (req, res) {
     if (data.category?.trim() && data.category.trim().match(/[^-_a-zA-Z]/))
       error.push("enter valid category")
 
+    /***************************************************************/
+
+    if(data.subcategory.includes('[' && ']'))
+    data.subcategory = data.subcategory.split(/[",\[\]]/).filter(x=>x.trim())
+    
+    /***************************************************************/
+
     //checks for valid subcategory conditions
     if (data.hasOwnProperty('subcategory')) {
       if (Array.isArray(data.subcategory)) {
@@ -71,6 +119,7 @@ const createBook = async function (req, res) {
     if (Array.isArray(data.subcategory))
       data.subcategory = data.subcategory.filter(x => x.trim())
     data.isDeleted = false
+    data.bookCover = uploadedFileURL
     let created = await bookModel.create(data)
     res.status(201).send({ status: true, message: "Success", data: created })
   } catch (error) {
